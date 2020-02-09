@@ -3,19 +3,16 @@
  * Created by Logan Savage
  *
  * Licensed under the CC-BY-SA license
+ * =================================================================================
+ * Rules for Life:
+ * 1) A cell dies if alive and has less than 2 neighbors, as through underpopulation
+ * 2) A cell lives on if there is 2 or 3 neighbors
+ * 3) A cell dies if alive and has more than 3 neighbors, as through overpopulation
+ * 4) A cell comes to life if there are exactly 3 neighbors, as through reproduction
  */
-
- /**
-  * Rules for Life:
-  * 1) A cell dies if alive and has less than 2 neighbors, as through underpopulation
-  * 2) A cell lives on if there is 2 or 3 neighbors
-  * 3) A cell dies if alive and has more than 3 neighbors, as through overpopulation
-  * 4) A cell comes to life if there are exactly 3 neighbors, as through reproduction
-  */
-
 'use strict';
 
-//===============================================
+//=================================================================================
 // View Constants
 
 // In frames per second
@@ -28,13 +25,13 @@ const WIDTH = 1200,
 const CELL_ROW_COUNT = Math.round(HEIGHT / 2),
       CELL_COLUMN_COUNT = Math.round(WIDTH / 2);
 
-//===============================================
+//=================================================================================
 // Color Constants
 
 const DEAD_SHADE = 50,
       LIVE_SHADE = 255;
 
-//===============================================
+//=================================================================================
 // UI Constants
 
 const CONTROLS_TEXT = 'Controls:\n' +
@@ -44,16 +41,16 @@ const CONTROLS_TEXT = 'Controls:\n' +
   'S Toggle generation UI\n' +
   'C Toggle Controls UI';
 
-//===============================================
+//=================================================================================
 // States
 
-var s_showGenerations = true,
+let s_showGenerations = true,
     s_gridLines = false,
     s_paused = false,
     s_showControls = true;
 
 // Calculated constants
-var CELL_HEIGHT,
+let CELL_HEIGHT,
     CELL_WIDTH;
 
 // Simulation variables
@@ -61,12 +58,12 @@ let cells,
     nextCells,
     generation;
 
-//===============================================
+//=================================================================================
 // Main functions
 
 function setup() {
-  resetBoard();
   nextCells = generateGrid();
+  resetBoard();
   createCanvas(WIDTH, HEIGHT);
   frameRate(FRAMERATE);
   initBoardSize();
@@ -84,6 +81,7 @@ function draw() {
     text('P A U S E D', width / 2, height / 2);
     textAlign(LEFT, BASELINE);
   }
+
   if (s_showGenerations) {
     fill(255, 255, 255, 100);
     rect(0, 0, width, 40)
@@ -92,6 +90,7 @@ function draw() {
     textSize(30);
     text(`Generation: ${generation}`, 10, 30);
   }
+
   if (s_showControls) {
     fill(255, 255, 255, 100);
     rect(0, 40, width / 3.5, height - 40);
@@ -100,7 +99,8 @@ function draw() {
   }
 }
 
-//===============================================
+//=================================================================================
+// Initialization
 
 /* Initialize the matrix of cells to random Boolean values */
 function generateGrid(willRandomize) {
@@ -117,6 +117,7 @@ function generateGrid(willRandomize) {
       }
     }
   }
+
   return generatedGrid;
 }
 
@@ -125,13 +126,13 @@ function initBoardSize() {
   CELL_HEIGHT = height / CELL_ROW_COUNT;
 }
 
-//===============================================
-// Logic
-
 function resetBoard() {
   cells = generateGrid(true);
   generation = 1;
 }
+
+//=================================================================================
+// Logic
 
 // Returns [row, column]
 const GET_CLICKED_TILE = (mouse) => [
@@ -188,18 +189,30 @@ function calculateLiveNeighbors(r, c) {
   return liveNeighbors;
 }
 
-//===============================================
+//=================================================================================
 // I/O
 
 function keyPressed() {
-  if (key === 'p') s_paused = !s_paused;
-  if (key === 'g') s_gridLines = !s_gridLines;
-  if (key === 's') s_showGenerations = !s_showGenerations;
-  if (key === 'r') resetBoard();
-  if (key === 'c') s_showControls = !s_showControls;
+  switch (key) {
+    case 'p':
+      s_paused = !s_paused;
+      break;
+    case 'g':
+      s_gridLines = !s_gridLines;
+      break;
+    case 's':
+      s_showGenerations = !s_showGenerations;
+      break;
+    case 'c':
+      s_showControls = !s_showControls;
+      break;
+    case 'r':
+      resetBoard();
+      break;
+  }
 }
 
-//===============================================
+//=================================================================================
 // Drawing
 
 function drawCells() {
