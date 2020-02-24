@@ -13,3 +13,9 @@ A basic p5.js sketch that demonstrates John Conway's Game of Life.
 `[S]` Toggle generation counter
 
 `[C]` Toggle controls menu
+
+### Output
+
+`[SHFT][C]` Copy board in RLE format
+
+`[SHFT][S]` Save board in a `.rle` RLE-formatted board file
