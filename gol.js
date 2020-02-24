@@ -19,11 +19,11 @@
 const FRAMERATE = 15;
 
 // In px
-const WIDTH = 1200,
-      HEIGHT = 800;
+const WIDTH = innerWidth - 10,
+      HEIGHT = innerHeight - 10;
 
-const CELL_ROW_COUNT = Math.round(HEIGHT / 2),
-      CELL_COLUMN_COUNT = Math.round(WIDTH / 2);
+const CELL_ROW_COUNT = Math.round(HEIGHT / 3),
+      CELL_COLUMN_COUNT = Math.round(WIDTH / 3);
 
 //=================================================================================
 // Color Constants
@@ -35,19 +35,22 @@ const DEAD_SHADE = 50,
 // UI Constants
 
 const CONTROLS_TEXT = 'Controls:\n' +
-  'P Pause\n' +
+  'p/_ Pause\n' +
   'R Reset\n' +
-  'G Toggle gridlines\n' +
-  'S Toggle generation UI\n' +
-  'C Toggle Controls UI';
+  'A Reset (randomize board)\n' +
+  'g Toggle gridlines\n' +
+  's Toggle generation UI\n' +
+  'c Toggle Controls UI';
 
 //=================================================================================
 // States
 
-let s_showGenerations = true,
+let s_showGenerations = false,
     s_gridLines = false,
     s_paused = false,
-    s_showControls = true;
+    s_showControls = false,
+    s_mouseDown = false,
+    s_write = false;
 
 // Calculated constants
 let CELL_HEIGHT,
@@ -70,17 +73,12 @@ function setup() {
 }
 
 function draw() {
+  doUserPlacement();
   background(DEAD_SHADE);
   drawCells();
 
   if (!s_paused) checkCells();
-  else {
-    background(255, 255, 255, 100);
-    fill(0);
-    textAlign(CENTER, TOP);
-    text('P A U S E D', width / 2, height / 2);
-    textAlign(LEFT, BASELINE);
-  }
+  else background(255, 255, 255, 100);
 
   if (s_showGenerations) {
     fill(255, 255, 255, 100);
@@ -93,8 +91,9 @@ function draw() {
 
   if (s_showControls) {
     fill(255, 255, 255, 100);
-    rect(0, 40, width / 3.5, height - 40);
+    rect(0, 40, 400, height - 40);
     fill(0);
+    textSize(30);
     text(CONTROLS_TEXT, 10, 65);
   }
 }
@@ -105,7 +104,6 @@ function draw() {
 /* Initialize the matrix of cells to random Boolean values */
 function generateGrid(willRandomize) {
   let generatedGrid = new Array(CELL_ROW_COUNT);
-
   for (let r = 0; r < generatedGrid.length; r++) {
     generatedGrid[r] = new Array(CELL_COLUMN_COUNT);
     for (let c = 0; c < generatedGrid[r].length; c++) {
@@ -113,7 +111,7 @@ function generateGrid(willRandomize) {
         generatedGrid[r][c] = Math.round(Math.random()) == 1;
       }
       else {
-        generatedGrid[r][c] = true;
+        generatedGrid[r][c] = false;
       }
     }
   }
@@ -126,8 +124,8 @@ function initBoardSize() {
   CELL_HEIGHT = height / CELL_ROW_COUNT;
 }
 
-function resetBoard() {
-  cells = generateGrid(true);
+function resetBoard(willRand) {
+  cells = generateGrid(willRand);
   generation = 1;
 }
 
@@ -135,9 +133,9 @@ function resetBoard() {
 // Logic
 
 // Returns [row, column]
-const GET_CLICKED_TILE = (mouse) => [
-  Math.floor(mouse[1] / CELL_HEIGHT),
-  Math.floor(mouse[0] / CELL_WIDTH)
+const GET_CLICKED_TILE = () => [
+  Math.floor(mouseY / CELL_HEIGHT),
+  Math.floor(mouseX / CELL_WIDTH)
 ];
 
 // Creates the next board, then swaps it with the current
@@ -150,6 +148,8 @@ function checkCells() {
         : liveNeighborCount === 3;
     }
   }
+
+  // Swap the next board with the current board, increment the generation
   let temp = cells;
   cells = nextCells;
   nextCells = temp;
@@ -163,6 +163,8 @@ function calculateLiveNeighbors(r, c) {
     for (let column = c - 1; column <= c + 1; column++) {
       let rp = row;
       let cp = column;
+
+      // Map as torotoidal matrix
       if (row >= CELL_ROW_COUNT) {
         rp = row % CELL_ROW_COUNT;
       }
@@ -177,10 +179,8 @@ function calculateLiveNeighbors(r, c) {
         cp = CELL_COLUMN_COUNT + column;
       }
 
-      if (
-        (rp !== r || cp !== c) && // Not the center (the tile being tested)
-        cells[rp][cp]             // The tile's value (increment if true)
-      ) {
+      // Test cell value
+      if ((rp !== r || cp !== c) && cells[rp][cp]) {
         liveNeighbors++;
       }
     }
@@ -193,10 +193,10 @@ function calculateLiveNeighbors(r, c) {
 // I/O
 
 function keyPressed() {
+  if (keyCode === 32 || key === 'p') {
+    s_paused = !s_paused
+  }
   switch (key) {
-    case 'p':
-      s_paused = !s_paused;
-      break;
     case 'g':
       s_gridLines = !s_gridLines;
       break;
@@ -206,10 +206,39 @@ function keyPressed() {
     case 'c':
       s_showControls = !s_showControls;
       break;
-    case 'r':
+    case 'R':
       resetBoard();
       break;
+    case 'A':
+      resetBoard(true);
+      break;
+    case 'C':
+      copyStringToClipboard(rle_encode(cells));
+      break;
+    case 'S':
+      saveStringAsFile(rle_encode(cells), 'rle');
+      break;
   }
+}
+
+function mousePressed() {
+  s_mouseDown = true;
+  // Set the writing state
+  let pos = GET_CLICKED_TILE();
+  s_write = !cells[pos[0]][pos[1]];
+}
+
+function doUserPlacement() {
+  if (s_mouseDown) {
+    let pos = GET_CLICKED_TILE();
+    if (pos[0] >= 0 && pos[0] < cells.length && pos[1] >= 0 && pos[1] < cells[0].length) {
+      cells[pos[0]][pos[1]] = s_write;
+    }
+  }
+}
+
+function mouseReleased() {
+  s_mouseDown = false;
 }
 
 //=================================================================================
