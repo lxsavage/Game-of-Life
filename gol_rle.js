@@ -38,6 +38,7 @@ function rle_encode(board) {
   return `${header}\n${output}`;
 }
 
+/** Non-functional */
 function rle_decode(rleBoard) {
   rleBoard
     .replace('\n', '')
