@@ -11,8 +11,8 @@ function copyStringToClipboard(str) {
 
 function saveStringAsFile(str, format) {
   let el = document.createElement('a');
-  el.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  el.setAttribute('download', `${str}.${format}`);
+  el.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(str));
+  el.setAttribute('download', `board.${format}`);
 
   el.style.display = 'none';
   document.body.appendChild(el);
