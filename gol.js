@@ -74,7 +74,7 @@ function setup() {
 
 function draw() {
   doUserPlacement();
-  background(DEAD_SHADE);
+  background(DEAD_SHADE);//background(DEAD_SHADE, DEAD_SHADE, DEAD_SHADE, 100);
   drawCells();
 
   if (!s_paused) checkCells();
@@ -165,20 +165,23 @@ function calculateLiveNeighbors(r, c) {
       let cp = column;
 
       // Map as torotoidal matrix
-      if (row >= CELL_ROW_COUNT) {
-        rp = row % CELL_ROW_COUNT;
+      if (row >= cells.length) {
+        rp = row % cells.length;
       }
       else if (row < 0) {
-        rp = CELL_ROW_COUNT + row;
+        rp = cells.length + row;
       }
 
-      if (column >= CELL_COLUMN_COUNT) {
-        cp = column % CELL_COLUMN_COUNT;
+      if (column >= cells[0].length) {
+        cp = column % cells[0].length;
       }
       else if (column < 0) {
-        cp = CELL_COLUMN_COUNT + column;
+        cp = cells[0].length + column;
       }
 
+      if (cells[rp] === undefined) {
+        console.log(rp);
+      }
       // Test cell value
       if ((rp !== r || cp !== c) && cells[rp][cp]) {
         liveNeighbors++;
@@ -213,10 +216,10 @@ function keyPressed() {
       resetBoard(true);
       break;
     case 'C':
-      copyStringToClipboard(rle_encode(cells));
+      copyStringToClipboard(RLE.encode(cells));
       break;
     case 'S':
-      saveStringAsFile(rle_encode(cells), 'rle');
+      saveStringAsFile(RLE.encode(cells), 'rle');
       break;
   }
 }
@@ -239,6 +242,23 @@ function doUserPlacement() {
 
 function mouseReleased() {
   s_mouseDown = false;
+}
+
+function loadBoard(rle) {
+  let newBoard = RLE.decode(rle);
+  let minR = cells.length < newBoard.length
+    ? cells.length
+    : newBoard.length;
+  let minC = cells[0].length < newBoard[0].length
+    ? cells[0].length
+    : newBoard[0].length;
+
+  for (let r = 0; r < minR; r++) {
+    for (let c = 0; c < minC; c++) {
+      cells[r][c] = newBoard[r][c];
+    }
+  }
+  generation = 1;
 }
 
 //=================================================================================
