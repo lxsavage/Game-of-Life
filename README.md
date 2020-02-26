@@ -4,18 +4,20 @@ A basic p5.js sketch that demonstrates John Conway's Game of Life.
 
 ### Controls
 
-`[P]` Pause the simulation
+`[P] or [SPACE]` Pause the simulation
 
 `[G]` Toggle grid lines
 
-`[R]` Reset the simulation with a new, random board
+`[SHIFT][R]` Reset the simulation with an empty board
+
+`[SHIFT][A]` Reset the simulation with a new, random board
 
 `[S]` Toggle generation counter
 
-`[C]` Toggle controls menu
+`[SHIFT][C]` Toggle controls menu
 
 ### Output
 
-`[SHFT][C]` Copy board in RLE format
+`[CTRL/CMD][C]` Copy board in RLE format
 
-`[SHFT][S]` Save board in a `.rle` RLE-formatted board file
+`[CTRL/CMD][S]` Save board in a `.rle` RLE-formatted board file
