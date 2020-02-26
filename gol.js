@@ -85,8 +85,8 @@ function generateGrid(willRandomize) {
 }
 
 function initBoardSize() {
-  CELL_WIDTH = width / CELL_COLUMN_COUNT;
-  CELL_HEIGHT = height / CELL_ROW_COUNT;
+  CELL_WIDTH = WIDTH / CELL_COLUMN_COUNT;
+  CELL_HEIGHT = HEIGHT / CELL_ROW_COUNT;
 }
 
 function resetBoard(willRand) {

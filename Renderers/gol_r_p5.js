@@ -17,7 +17,8 @@
 function setup() {
   nextCells = generateGrid();
   resetBoard();
-  createCanvas(WIDTH, HEIGHT);
+  let canvas = createCanvas(WIDTH, HEIGHT);
+  canvas.id('gol_cnv');
   frameRate(FRAMERATE);
   initBoardSize();
 }
