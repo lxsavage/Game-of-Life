@@ -16,6 +16,7 @@
  * - All trailing dead cells are removed from the data (remove trailing b's before a $)
  */
 'use strict';
+
 const RLE = {
   // `private` scope
   _: {
@@ -44,6 +45,7 @@ const RLE = {
       return output;
     },
     validate: (rle) => {
+      // Validate header
       if (!/x\s*=\s*(\d+)\s*,\s*y\s*=\s*(\d+)(,\s*\w+\s*=\s*[^\s]+)*/.test(rle)) return false;
       let dimensions = [
         parseInt(rle.match(/x\s*=\s*(\d+)/)[1]),

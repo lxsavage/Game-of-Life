@@ -1,6 +1,8 @@
 /**
- * John H. Conway's Game of Life
+ * John H. Conway's Game of Life: Logic functions
  * Created by Logan Savage
+ *
+ * Requires prior inclusion of `gol_rle.js`, `gol_io.js`
  *
  * Licensed under the CC-BY-SA license
  * =================================================================================
@@ -19,8 +21,8 @@
 const FRAMERATE = 15;
 
 // In px
-const WIDTH = innerWidth - 10,
-      HEIGHT = innerHeight - 10;
+const WIDTH = innerWidth,// - 10,
+      HEIGHT = innerHeight;// - 10;
 
 const CELL_ROW_COUNT = Math.round(HEIGHT / 3),
       CELL_COLUMN_COUNT = Math.round(WIDTH / 3);
@@ -40,7 +42,7 @@ const CONTROLS_TEXT = 'Controls:\n' +
   'A Reset (randomize board)\n' +
   'g Toggle gridlines\n' +
   's Toggle generation UI\n' +
-  'c Toggle Controls UI';
+  'C Toggle Controls UI';
 
 //=================================================================================
 // States
@@ -60,43 +62,6 @@ let CELL_HEIGHT,
 let cells,
     nextCells,
     generation;
-
-//=================================================================================
-// Main functions
-
-function setup() {
-  nextCells = generateGrid();
-  resetBoard();
-  createCanvas(WIDTH, HEIGHT);
-  frameRate(FRAMERATE);
-  initBoardSize();
-}
-
-function draw() {
-  doUserPlacement();
-  background(DEAD_SHADE);//background(DEAD_SHADE, DEAD_SHADE, DEAD_SHADE, 100);
-  drawCells();
-
-  if (!s_paused) checkCells();
-  else background(255, 255, 255, 100);
-
-  if (s_showGenerations) {
-    fill(255, 255, 255, 100);
-    rect(0, 0, width, 40)
-    fill(0, 0, 0);
-    noStroke();
-    textSize(30);
-    text(`Generation: ${generation}`, 10, 30);
-  }
-
-  if (s_showControls) {
-    fill(255, 255, 255, 100);
-    rect(0, 40, 400, height - 40);
-    fill(0);
-    textSize(30);
-    text(CONTROLS_TEXT, 10, 65);
-  }
-}
 
 //=================================================================================
 // Initialization
@@ -133,10 +98,12 @@ function resetBoard(willRand) {
 // Logic
 
 // Returns [row, column]
-const GET_CLICKED_TILE = () => [
-  Math.floor(mouseY / CELL_HEIGHT),
-  Math.floor(mouseX / CELL_WIDTH)
-];
+function getClickedTile(mX, mY) {
+  return [
+    Math.floor(mY / CELL_HEIGHT),
+    Math.floor(mX / CELL_WIDTH)
+  ];
+};
 
 // Creates the next board, then swaps it with the current
 function checkCells() {
@@ -195,18 +162,38 @@ function calculateLiveNeighbors(r, c) {
 //=================================================================================
 // I/O
 
-function keyPressed() {
-  if (keyCode === 32 || key === 'p') {
+function placementAction(mX, mY) {
+  if (s_mouseDown) {
+    let pos = getClickedTile(mX, mY);
+    if (pos[0] >= 0 && pos[0] < cells.length && pos[1] >= 0 && pos[1] < cells[0].length) {
+      cells[pos[0]][pos[1]] = s_write;
+    }
+  }
+}
+function mouseAction(mouseDown, mX, mY) {
+  if (mouseDown) {
+    s_mouseDown = true;
+    // Set the writing state
+    let pos = getClickedTile(mX, mY);
+    s_write = !cells[pos[0]][pos[1]];
+  }
+  else {
+    s_mouseDown = false;
+  }
+}
+
+function keyboardAction(keyCode, eventKey) {
+  if (keyCode === 32 || eventKey === 'p') {
     s_paused = !s_paused
   }
-  switch (key) {
+  switch (eventKey) {
     case 'g':
       s_gridLines = !s_gridLines;
       break;
     case 's':
       s_showGenerations = !s_showGenerations;
       break;
-    case 'c':
+    case 'C':
       s_showControls = !s_showControls;
       break;
     case 'R':
@@ -215,33 +202,10 @@ function keyPressed() {
     case 'A':
       resetBoard(true);
       break;
-    case 'C':
-      copyStringToClipboard(RLE.encode(cells));
-      break;
     case 'S':
       saveStringAsFile(RLE.encode(cells), 'rle');
       break;
   }
-}
-
-function mousePressed() {
-  s_mouseDown = true;
-  // Set the writing state
-  let pos = GET_CLICKED_TILE();
-  s_write = !cells[pos[0]][pos[1]];
-}
-
-function doUserPlacement() {
-  if (s_mouseDown) {
-    let pos = GET_CLICKED_TILE();
-    if (pos[0] >= 0 && pos[0] < cells.length && pos[1] >= 0 && pos[1] < cells[0].length) {
-      cells[pos[0]][pos[1]] = s_write;
-    }
-  }
-}
-
-function mouseReleased() {
-  s_mouseDown = false;
 }
 
 function loadBoard(rle) {
@@ -259,28 +223,4 @@ function loadBoard(rle) {
     }
   }
   generation = 1;
-}
-
-//=================================================================================
-// Drawing
-
-function drawCells() {
-  noStroke();
-  fill(LIVE_SHADE);
-  for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < cells[0].length; c++) {
-      if (cells[r][c]) {
-        rect(c * CELL_WIDTH, r * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
-      }
-    }
-  }
-  if (s_gridLines) {
-    stroke(0);
-    for (let r = 0; r < cells.length; r++) {
-      line(0, r * CELL_HEIGHT, width, r * CELL_HEIGHT);
-    }
-    for (let c = 0; c < cells[0].length; c++) {
-      line(c * CELL_WIDTH, 0, c * CELL_WIDTH, height);
-    }
-  }
 }
