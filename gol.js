@@ -21,23 +21,25 @@
 const FRAMERATE = 15;
 
 // In px
-const WIDTH = innerWidth,// - 10,
-      HEIGHT = innerHeight;// - 10;
+const WIDTH = innerWidth,
+      HEIGHT = innerHeight;
 
-const CELL_ROW_COUNT = Math.round(HEIGHT / 3),
-      CELL_COLUMN_COUNT = Math.round(WIDTH / 3);
+const CELL_ROW_COUNT = Math.floor(HEIGHT / 3),
+      CELL_COLUMN_COUNT = Math.floor(WIDTH / 3);
 
 //=================================================================================
 // Color Constants
 
-const DEAD_SHADE = 50,
-      LIVE_SHADE = 255;
+const DEAD_COLOR = '#323232',
+      LIVE_COLOR = '#fff',
+      TEXT_COLOR = '#000',
+      UI_COLOR = 'rgba(255, 255, 255, .5)';
 
 //=================================================================================
 // UI Constants
 
 const CONTROLS_TEXT = 'Controls:\n' +
-  'p/_ Pause\n' +
+  'p/[SPACE] Pause\n' +
   'R Reset\n' +
   'A Reset (randomize board)\n' +
   'g Toggle gridlines\n' +
@@ -85,8 +87,8 @@ function generateGrid(willRandomize) {
 }
 
 function initBoardSize() {
-  CELL_WIDTH = WIDTH / CELL_COLUMN_COUNT;
-  CELL_HEIGHT = HEIGHT / CELL_ROW_COUNT;
+  CELL_WIDTH = Math.round(WIDTH / CELL_COLUMN_COUNT);
+  CELL_HEIGHT = Math.round(HEIGHT / CELL_ROW_COUNT);
 }
 
 function resetBoard(willRand) {

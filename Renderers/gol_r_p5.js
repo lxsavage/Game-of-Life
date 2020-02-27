@@ -17,6 +17,7 @@
 function setup() {
   nextCells = generateGrid();
   resetBoard();
+  noSmooth();
   let canvas = createCanvas(WIDTH, HEIGHT);
   canvas.id('gol_cnv');
   frameRate(FRAMERATE);
@@ -25,7 +26,7 @@ function setup() {
 
 function draw() {
   placementAction(mouseX, mouseY);
-  background(DEAD_SHADE);
+  background(DEAD_COLOR);
   drawCells();
 
   if (!s_paused) checkCells();
@@ -34,7 +35,7 @@ function draw() {
   if (s_showGenerations) {
     fill(255, 255, 255, 100);
     rect(0, 0, width, 40)
-    fill(0, 0, 0);
+    fill(TEXT_COLOR);
     noStroke();
     textSize(30);
     text(`Generation: ${generation}`, 10, 30);
@@ -43,7 +44,7 @@ function draw() {
   if (s_showControls) {
     fill(255, 255, 255, 100);
     rect(0, 40, 400, height - 40);
-    fill(0);
+    fill(TEXT_COLOR);
     textSize(30);
     text(CONTROLS_TEXT, 10, 65);
   }
@@ -51,7 +52,7 @@ function draw() {
 
 function drawCells() {
   noStroke();
-  fill(LIVE_SHADE);
+  fill(LIVE_COLOR);
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < cells[0].length; c++) {
       if (cells[r][c]) {

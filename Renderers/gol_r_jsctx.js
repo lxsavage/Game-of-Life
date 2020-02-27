@@ -2,7 +2,7 @@
  * John H. Conway's Game of Life: Renderer/IO Controller (No library, HTML5 Canvas API)
  * Created by Logan Savage
  *
- * Requires prior inclusion of `gol_rle.js`, `gol.js`, `gol_io.js`,
+ * Requires prior inclusion of `gol_rle.js`, `gol.js`, `gol_io.js`
  *
  * Licensed under the CC-BY-SA license
  * =================================================================================
@@ -12,6 +12,8 @@
 'use strict';
 
 let mousePos = { x: 0, y: 0 };
+
+const TXT_FNT = '30px sans-serif';
 
 // Initialize board
 nextCells = generateGrid();
@@ -25,9 +27,14 @@ canvas.height = HEIGHT;
 canvas.id = 'gol_cnv';
 document.body.appendChild(canvas);
 
-// Get a 2d context of the canvas
+// Fix blurring
 const cnv = document.getElementById('gol_cnv');
+cnv.width = cnv.offsetWidth;
+cnv.height = cnv.offsetHeight;
+
+// Get a 2d context of the canvas
 const ctx = cnv.getContext('2d');
+ctx.font = TXT_FNT;
 
 // Start the game loop
 let sk_int = setInterval(draw, 1000 / FRAMERATE);
@@ -40,31 +47,30 @@ const sk_stop = () => clearInterval(sk_int);
 
 function draw() {
   placementAction(mousePos.x, mousePos.y);
-  bg(`rgb(${DEAD_SHADE},${DEAD_SHADE},${DEAD_SHADE})`);
+  bg(DEAD_COLOR);
 
   drawCells();
 
   if (!s_paused) checkCells();
-  else bg('rgba(255, 255, 255, .5)');
+  else bg(UI_COLOR);
 
   if (s_showGenerations) {
-    ctx.fillStyle = 'rgba(255, 255, 255, .5)';
+    ctx.fillStyle = UI_COLOR;
     ctx.fillRect(0, 0, WIDTH, 40)
-    ctx.fillStyle = 'black';
-    ctx.font = '30px sans-serif';
+    ctx.fillStyle = TEXT_COLOR;
     ctx.fillText(`Generation: ${generation}`, 10, 30);
   }
 
   if (s_showControls) {
-    ctx.fillStyle = 'rgba(255, 255, 255, .5)';
+    ctx.fillStyle = UI_COLOR;
     ctx.fillRect(0, 40, 400, HEIGHT - 40);
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = TEXT_COLOR;
     fillFancyText(CONTROLS_TEXT, 10, 65);
   }
 }
 
 function drawCells() {
-  ctx.fillStyle = `rgb(${LIVE_SHADE},${LIVE_SHADE},${LIVE_SHADE})`;
+  ctx.fillStyle = LIVE_COLOR;
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < cells[0].length; c++) {
       if (cells[r][c]) {
@@ -73,18 +79,12 @@ function drawCells() {
     }
   }
   if (s_gridLines) {
-    ctx.strokeStyle = 'black';
+    ctx.strokeStyle = TEXT_COLOR;
     for (let r = 0; r < cells.length; r++) {
-      ctx.beginPath();
-      ctx.moveTo(0, r * CELL_HEIGHT);
-      ctx.lineTo(WIDTH, r * CELL_HEIGHT);
-      ctx.stroke();
+      line(0, r * CELL_HEIGHT, WIDTH, r * CELL_HEIGHT);
     }
     for (let c = 0; c < cells[0].length; c++) {
-      ctx.beginPath();
-      ctx.moveTo(c * CELL_WIDTH, 0);
-      ctx.lineTo(c * CELL_WIDTH, HEIGHT);
-      ctx.stroke();
+      line(c * CELL_WIDTH, 0, c * CELL_WIDTH, HEIGHT);
     }
   }
 }
@@ -108,13 +108,19 @@ function getMousePos(e) {
 }
 
 function fillFancyText(str, x, y) {
-  ctx.font = '30px sans-serif';
   let lineheight = 35;
   let lines = str.split('\n');
 
   for (let i = 0; i < lines.length; i++) {
     ctx.fillText(lines[i], x, y + (i * lineheight));
   }
+}
+
+function line(x1, y1, x2, y2) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
 }
 
 //=================================================================================

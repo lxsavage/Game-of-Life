@@ -65,6 +65,8 @@ const RLE = {
     }
   },
   encode: (board) => {
+    let rows = 0,
+        cols = 0;
     let header = `x = ${board[0].length}, y = ${board.length}`;
     let output = '';
 
